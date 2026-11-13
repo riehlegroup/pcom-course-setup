@@ -16,9 +16,10 @@ During each evaluation round, the competition service calls your `/predict` endp
 Open `main.py` and replace the example code inside `run_model(df: pd.DataFrame)` with your trained model's inference logic.
 
 **Important Rules:**
-1. Do **not** change the row order, row count, or column names of the DataFrame.
-2. Fill the empty target column(s) with your predictions (no `NaN` / empty values in target columns).
-3. If your model requires additional Python libraries (e.g., `scikit-learn`, `xgboost`, `torch`, `joblib`), add them to `requirements.txt` and `pyproject.toml` (`uv add <package>`).
+1. The input CSV (`df`) provides a comma-separated time-series of metrics for a package (multiple rows, US decimal format `.`).
+2. `run_model(df)` must return a **single-row DataFrame (`len(prediction_df) == 1`)** whose column headers exactly match the target headers specified in the competition description.
+3. All predicted numeric values must be valid integers or US-format floats (`.` as decimal separator, no `NaN` / empty values).
+4. If your model requires additional Python libraries (e.g., `scikit-learn`, `xgboost`, `torch`, `joblib`), add them to `requirements.txt` and `pyproject.toml` (`uv add <package>`).
 
 ---
 

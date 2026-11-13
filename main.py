@@ -15,12 +15,16 @@ class EvaluationBody(BaseModel):
 
 
 def run_model(df: pd.DataFrame) -> pd.DataFrame:
-    prediction_df = df.copy()
     # ==== EXAMPLE: ADD YOUR PREDICTIONS OF TRAINED MODEL HERE ====
-    # Fill empty target columns of input dataset with predictions (the example just fills every empty column  with 0)
-    for col in prediction_df.columns:
-        if prediction_df[col].isna().all():
-            prediction_df[col] = 0
+    # df contains the input time-series metrics for a package (multiple rows).
+    # Return a single-row DataFrame containing the target columns required by the competition:
+    prediction_df = pd.DataFrame(
+        [
+            {
+                "cve_high": 0.0,
+            }
+        ]
+    )
     # =============================================================
 
     return prediction_df
@@ -31,17 +35,17 @@ def start_prediction(download_url: str, upload_url: str):
         result = requests.get(download_url, timeout=30)
         result.raise_for_status()
 
-        # Read input CSV
-        input_data = pd.read_csv(io.StringIO(result.text))
+        # Read input time-series CSV (comma-separated, US float format)
+        input_data = pd.read_csv(io.StringIO(result.text), sep=",", decimal=".")
 
-        # ADD YOUR PREDICTION MODEL HERE TO FILL PREDICTION DATA WITHOUT CHANGING THE ORDER OF ROWS IN CSV
+        # ADD YOUR PREDICTION MODEL HERE TO PREDICT A SINGLE ROW WITH THE TARGET HEADERS
         # ======== Example =========
         prediction_data = run_model(input_data)
         # ======== END Example =====
 
-        assert input_data.shape == prediction_data.shape, "Shape mismatch between input and prediction data"
+        assert len(prediction_data) == 1, "Prediction DataFrame must contain exactly 1 row"
         output_buffer = io.StringIO()
-        prediction_data.to_csv(output_buffer, header=True, index=False)
+        prediction_data.to_csv(output_buffer, sep=",", decimal=".", header=True, index=False)
         output_buffer.seek(0)
 
         file = {"predictions": ("prediction.csv", output_buffer.getvalue(), "text/csv")}
